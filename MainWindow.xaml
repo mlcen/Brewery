@@ -24,24 +24,23 @@
     </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="60" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
         <DockPanel>
             <ToolBarTray DockPanel.Dock="Top">
                 <ToolBar>
-                    <Button Command="Cut" ToolTip="Cut selection to Windows Clipboard.">
-                        <!--<Image Source="/WpfTutorialSamples;component/Images/cut.png" />-->
-                    </Button>
-                    <Button Command="Copy" ToolTip="Copy selection to Windows Clipboard.">
-                        <!--<Image Source="/WpfTutorialSamples;component/Images/copy.png" />-->
-                    </Button>
-                    <Button Command="Paste" ToolTip="Paste from Windows Clipboard.">
-                        <StackPanel Orientation="Horizontal">
-                            <!--<Image Source="/WpfTutorialSamples;component/Images/paste.png" />-->
-                            <TextBlock Margin="3,0,0,0">Paste</TextBlock>
-                        </StackPanel>
-                    </Button>
+                    <Button Command="New" Content="New" />
+                    <Button Command="Open" Content="Open" />
+                    <Button Command="Save" Content="Save" />
+                </ToolBar>
+                <ToolBar>
+                    <Button Command="Cut" Content="Cut" />
+                    <Button Command="Copy" Content="Copy" />
+                    <Button Command="Paste" Content="Paste" />
                 </ToolBar>
             </ToolBarTray>
             <TextBox AcceptsReturn="True" />
