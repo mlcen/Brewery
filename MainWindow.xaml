@@ -1,0 +1,381 @@
+﻿<Window x:Class="Brewery.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Brewery"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="750" Width="1200">
+    <Window.Resources>
+        <XmlDataProvider x:Key="ComPorts" Source="CommData.xml" XPath="/Comms/Ports" />
+        <XmlDataProvider x:Key="ComSpeed" Source="CommData.xml" XPath="/Comms/Baud" />
+        <Style x:Key="gridCell" TargetType="Rectangle">
+            <Setter Property="Stroke" Value="GhostWhite"/>
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <local:ChartViewModel/>
+    </Window.DataContext>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" CanExecute="CommonCommandBinding_CanExecute" />
+        <CommandBinding Command="Open" CanExecute="CommonCommandBinding_CanExecute" />
+        <CommandBinding Command="Save" CanExecute="CommonCommandBinding_CanExecute" />
+    </Window.CommandBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <DockPanel>
+            <ToolBarTray DockPanel.Dock="Top">
+                <ToolBar>
+                    <Button Command="Cut" ToolTip="Cut selection to Windows Clipboard.">
+                        <!--<Image Source="/WpfTutorialSamples;component/Images/cut.png" />-->
+                    </Button>
+                    <Button Command="Copy" ToolTip="Copy selection to Windows Clipboard.">
+                        <!--<Image Source="/WpfTutorialSamples;component/Images/copy.png" />-->
+                    </Button>
+                    <Button Command="Paste" ToolTip="Paste from Windows Clipboard.">
+                        <StackPanel Orientation="Horizontal">
+                            <!--<Image Source="/WpfTutorialSamples;component/Images/paste.png" />-->
+                            <TextBlock Margin="3,0,0,0">Paste</TextBlock>
+                        </StackPanel>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+            <TextBox AcceptsReturn="True" />
+        </DockPanel>
+        <Grid x:Name="MainContent" Grid.Row="1">
+            <TabControl >
+                <TabItem Header="Control Brewery">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="116*"/>
+                            <ColumnDefinition Width="30*"/>
+                            <ColumnDefinition Width="34*"/>
+                            <ColumnDefinition Width="112*"/>
+                            <ColumnDefinition Width="30*"/>
+                            <ColumnDefinition Width="34*"/>
+                            <ColumnDefinition Width="104*"/>
+                            <ColumnDefinition Width="30*"/>
+                            <ColumnDefinition Width="34*"/>
+                            <ColumnDefinition Width="112*"/>
+                            <ColumnDefinition Width="75*"/>
+                            <ColumnDefinition Width="74*"/>
+                            <ColumnDefinition Width="74*"/>
+                            <ColumnDefinition Width="75*"/>
+                            <ColumnDefinition Width="75*"/>
+                            <ColumnDefinition Width="75*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35*"/>
+                            <RowDefinition Height="26*"/>
+                            <RowDefinition Height="26*"/>
+                            <RowDefinition Height="26*"/>
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="26*" />
+                            <RowDefinition Height="350*"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox  Grid.ColumnSpan="10" Grid.RowSpan="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button x:Name="startBrewing" Content="Start brewing" Click="StartBrewing_Click" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="1"/>
+                                <Label x:Name="progressTime" Content="{Binding ProgressTime, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right"/>
+                                <Label x:Name="progressTimeUnits" Content="min" HorizontalContentAlignment="Left" Grid.Row="0"  Grid.Column="2"/>
+
+                                <Button x:Name="startFirstMashCaption" Content="Start First mash" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Click="StartFirstMash_Click" Margin="51.8,0,0.4,-0.4" Height="26" VerticalAlignment="Top" />
+                                <Label x:Name="progressTimeOfFirstMash" Content="{Binding ProgressOfFirstMash, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right"/>
+                                <Label x:Name="progressFirstMashUnits" Content="min" Grid.Row="0" Grid.Column="5"/>
+
+                                <Button x:Name="startSecondMash" Content="Start Second mash" Grid.Row="0" Grid.Column="6" Grid.ColumnSpan="1" Click="StartSeconMash_Click"/>
+                                <Label x:Name="progressOfSecondMash" Content="{Binding ProgressOfSecondMash, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="7" HorizontalAlignment="Right"/>
+                                <Label x:Name="startSecondMashUnits" Content="min" Grid.Row="0" Grid.Column="8"/>
+
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="MashTun Temperatures" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="2*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="actualMashTunTempCaption" Content="Actual Temperature:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left"/>
+                                <Label x:Name="actualMashTunTemperature" Content="{Binding ActualTemperatureOfMashTun, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" />
+                                <Label Content="°C" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Left" />
+                                <TextBox x:Name="txtBoxCalibrationOfMashTunThermometer" Text="{Binding CalibrationOfMashTunThermometerCorrectionfloat, UpdateSourceTrigger=LostFocus}" Grid.Row="0" Grid.Column="2" Width="30" HorizontalAlignment="Right"/>
+                                <Label x:Name="setMashTunTemperatureCaption" Content="Set Temperature:" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" />
+                                <Label x:Name="setMashTunTemperature" Content="{Binding MashTunTemperatureSettingFromModel, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" />
+                                <Label Content="°C" Grid.Row="0" Grid.Column="5" HorizontalContentAlignment="Left" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Mashing Temperatures" Grid.Row="2" Grid.Column="10" Grid.ColumnSpan="6" Grid.RowSpan="2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="0.5*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="0.5*" />
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="actualTemperatureOFMashingCaption" Content="Actual Temperature:" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left"/>
+                                <Label x:Name="actualTemperatureOfMashing" Content="{Binding ActualTemperatureOfMashing, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" />
+                                <Label Content="°C" Grid.Row="0" Grid.Column="2" HorizontalContentAlignment="Left" />
+                                <Label x:Name="setTemperatureOfMashingCaption" Content="Set Temperature:" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" />
+                                <Label x:Name="setTemperatureOfMashing" Content="{Binding TemperatureSettingFromModelOfMashing, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Right" />
+                                <Label Content="°C" Grid.Row="0" Grid.Column="5" HorizontalContentAlignment="Left" />
+                            </Grid>
+                        </GroupBox>
+                        <Label x:Name="overridePRogarmTemperature" Grid.Row="1" Grid.Column="10" Grid.ColumnSpan="3">
+                            <TextBlock>
+                                <Run Text="Override" Foreground="Red"/>
+                                <Run Text=" "/>
+                                <!--<Run Text="model"/>-->
+                                <!--<LineBreak/>-->
+                                <!--<Run Text="temperature"/>-->
+                                <!--<Run Text=" "/>-->
+                                <Run Text="setting:"/>
+                            </TextBlock>
+                        </Label>
+                        <Label Content="°C" Grid.Row="1" Grid.Column="13" />
+                        <TextBox x:Name="newTemperatureSetting" Text ="{Binding NewTemperatureSetting, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="12" TextWrapping="Wrap" />
+                        <Button x:Name="sendNewTemperature" Content="Send temperature" Grid.Row="1" Grid.Column="14" Grid.ColumnSpan="2" Click="SendDataToHardware_Click"/>
+                        <GroupBox Grid.Column="10" Grid.ColumnSpan="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <ListView Grid.ColumnSpan="1">
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"></StackPanel>
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <CheckBox x:Name="stirrerState" Content="Stirrer" IsChecked="{Binding StirrerState}"/>
+                                    <CheckBox x:Name="pumpState" Content="Pump" />
+                                </ListView>
+                                <!--<Button x:Name="stirrerState" Content="{Binding StirrerState, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="0" Click="stirrerState_Click"/>-->
+                                <Button x:Name="turnHeaterOn" Content="Turn Heater On" Grid.Column="1" Background="DarkGreen" Foreground="Yellow" Click="TurnHeaterOn_Click"/>
+                                <!--<Button x:Name="turnCoolingPumpOn" Grid.Column="1" Click="turnCoolingPumpOn_Click" />-->
+                                <Button x:Name="turnHeaterOff" Content="Turn Heater Off" Grid.Column="2" Background="DarkRed" Foreground="Wheat" Grid.ColumnSpan="2" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Chart Area" Grid.Row="10" Grid.Column="10" Grid.ColumnSpan="6">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="10*"/>
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <oxy:Plot x:Name="plot" Title="{Binding TitleOfChart}" FontSize="8" Background="BlanchedAlmond" InvalidateFlag="{Binding InvalidateFlag, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="0">
+                                    <oxy:Plot.Axes>
+                                        <oxy:LinearAxis Position="Bottom" Minimum="0" Title="[min]" />
+                                        <oxy:LinearAxis Position="Left" Minimum="10" Maximum="105" Title="[°C]" />
+                                    </oxy:Plot.Axes>
+                                    <!--<oxy:Plot.Focusable ="True"></oxy:Plot.Focusable>-->
+                                    <oxy:LineSeries x:Name="mashTun" ItemsSource="{Binding MashTun}" Color="BurlyWood" BrokenLineColor="Black"/>
+                                    <oxy:LineSeries x:Name="firstMash" ItemsSource="{Binding FirstMash}" Color="Brown"/>
+                                    <oxy:LineSeries x:Name="secondMash" ItemsSource="{Binding SecondMash}" Color="Brown"/>
+                                    <oxy:LineSeries x:Name="realTemperatureOfMashTun"  ItemsSource="{Binding RealSituationOfMashTun, UpdateSourceTrigger=PropertyChanged}" Color="Black"/>
+                                    <oxy:LineSeries x:Name="realTemperatureOfMashing" ItemsSource="{Binding RealSituationOfMashing, UpdateSourceTrigger=PropertyChanged}" Color="Blue" />
+                                </oxy:Plot>
+                                <Button x:Name="exportData" Content="Export Data" Background="Gray" Foreground="Gold" Grid.Row="1" Click="ExportData_Click"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="MashTun" Grid.Row="3" Grid.Column="0" Grid.RowSpan="6" Grid.ColumnSpan="10">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Rectangle Grid.Row ="0" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="0" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="0" Grid.Column = "3" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column = "3" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column = "3" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column = "3" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="4" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="4" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="4" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="4" Grid.Column =" 3" Style="{StaticResource gridCell}"/>
+
+
+                                <Label x:Name="preMashingPhase" Content="Pre-mashing phase" Grid.Column="1"/>
+
+                                <Label x:Name="progressTimeMashInCaption" Content="Mash In Elapsed Time [min]:" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right"/>
+                                <Label x:Name="progressTimeProteaseCaption" Content="Protease Elapsed Time [min]:" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right"/>
+                                <Label x:Name="firstAmylaseTimeCaption" Content="First Amylase Elapsed Time [min]:" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right"/>
+                                <Label x:Name="secondAmylaseTimeCaption" Content="Second Amylase Elapsed Time [min]:" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Right"/>
+
+                                <Label x:Name="progressTimeMashIn" Content="{Binding ProgressOfMashIn, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1"/>
+                                <Label x:Name="progressTimeProtease" Content="{Binding ProgressOfProtease, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1"/>
+                                <Label Content="Doesn't apply" Grid.Row="3" Grid.Column="1"/>
+                                <Label Content="Doesn't apply" Grid.Row="4" Grid.Column="1"/>
+
+                                <Label x:Name="mashingTimeCaption" Content="Mashing phase" Grid.Column="2"/>
+                                <Label Content="Doesn't apply" Grid.Row="1" Grid.Column="2"/>
+                                <Label x:Name="progressMashTunProtease"  Content="{Binding ProgressOfProtease, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="2"/>
+                                <Label x:Name="progressMashTunFirstAmylase" Content="{Binding  ProgressOfMashTunFirstAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="2"/>
+                                <Label Content="Doesn't apply" Grid.Row="4" Grid.Column="2"/>
+
+                                <Label x:Name="postMashingTimeCaption" Content="Post-mashing phase" Grid.Column="3"/>
+                                <Label Content="Doesn't apply" Grid.Row="1" Grid.Column="3"/>
+                                <Label Content="Doesn't apply" Grid.Row="2" Grid.Column="3"/>
+                                <Label Content="Doesn't apply" Grid.Row="3" Grid.Column="3"/>
+                                <Label Content="Optional" Grid.Row="4" Grid.Column="3"/>
+
+                            </Grid>
+                        </GroupBox>
+                        <!--<Label x:Name="progressTimeMashInCaption" Content="Elapsed Time:" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Right"/>
+                        <Label x:Name="progressTimeMashIn" Content="{Binding ProgressOfMashIn, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="4"/>
+                        <Label x:Name="progressTimeMashInUnits" Content="min" Grid.Row="1" Grid.Column="5"/>-->
+
+                        <!--<Label x:Name="progressTimeProteaseCaption" Content="Elapsed Time:" Grid.Row="1" Grid.Column="6" HorizontalAlignment="Right"/>
+                        <Label x:Name="progressTimeProtease" Content="{Binding ProgressOfProtease, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="7"/>
+                        <Label x:Name="progressTimeProteaseUnits" Content="min" Grid.Row="1" Grid.Column="8"/>-->
+
+                        <GroupBox Header="Mashing" Grid.Row="4" Grid.Column="10" Grid.RowSpan="5" Grid.ColumnSpan="6">
+                            <Grid  >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="0.3*" />
+                                    <ColumnDefinition Width="0.3*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Rectangle Grid.Row ="0" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="0" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="1" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="2" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 0" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 1" Style="{StaticResource gridCell}"/>
+                                <Rectangle Grid.Row ="3" Grid.Column =" 2" Style="{StaticResource gridCell}"/>
+
+
+                                <Label Content="First Mash" Grid.Row="0" Grid.Column="1"/>
+                                <Label Content="Second Mash" Grid.Row="0" Grid.Column="2"/>
+
+                                <Label x:Name="progressTimeFirstMashFirstAmylaseCaption" Content="First Amylase Elapsed time [min]:" Grid.Row="1" Grid.Column="0" HorizontalContentAlignment="Right" />
+
+
+                                <!--<Label x:Name="progressTimeFirstMashFirstAmylaseUnits" Content="min" Grid.Row="1" Grid.Column="2"/>-->
+
+                                <Label x:Name="progressTimeFirstMashSecondAmylaseCaption" Content="Second Amylase Elapsed time [min]:" Grid.Row="2" Grid.Column="0" HorizontalContentAlignment="Right"/>
+                                <Label Content="Boiling Elapsed Time [min]" Grid.Row="3" HorizontalAlignment="Right"/>
+
+                                <Label x:Name="progressTimeFirstMashFirstAmylase" Content="{Binding ProgressOfFirstMashFirstAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" />
+                                <Label x:Name="progressTimeFirstMashSecondAmylase" Content="{Binding ProgressOfFirstMashSecondAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1"/>
+                                <!--<Label x:Name="progressTimeFirstMashSecondAmylaseUnits" Content="min" Grid.Row="2" Grid.Column="2" HorizontalContentAlignment="Left"/>-->
+                                <Label x:Name="progressTimeFirstMashBoiling" Content="{Binding ProgressOfFirstMashBoiling, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1"/>
+
+                                <Label x:Name="progressOfSeconMashFirstAmylase" Content="Doesn't apply" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"/>
+                                <!--<Label x:Name="progressOfSecondMashSecondAmylaseCaption" Content="Elapsed Time:" Grid.Row="1" Grid.Column="2" HorizontalContentAlignment="Right"  />-->
+
+                                <Label x:Name="progressOfSecondMashSecondAmylase" Content="{Binding ProgressSecondMashSecondAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="2" />
+                                <!--<Label x:Name="progressSecondMasSecondAmylaseUnits"  Content="min" Grid.Row="3" Grid.Column="5"/>-->
+
+                                <!--<Label x:Name="progressOfSecondMashBoilingCaption" Content="Elapsed Time:" Grid.Row="3" Grid.Column="6" HorizontalContentAlignment="Right"/>-->
+                                <Label x:Name="progressOfSecondMashBoiling" Content="{Binding ProgressSecondMashBoiling, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="2"/>
+                                <!--<Label x:Name="progressOfSecondMashBoilingUnits" Content="min" Grid.Row="3" Grid.Column="8"/>-->
+                            </Grid>
+                        </GroupBox>
+                        <!--<Label x:Name="progressTimeFirstMashFirstAmylaseCaption" Content="Elapsed Time:" Grid.Row="2" Grid.Column="3" HorizontalContentAlignment="Right" />
+                        <Label x:Name="progressTimeFirstMashFirstAmylase" Content="{Binding ProgressOfFirstMashFirstAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="4" />
+                        <Label x:Name="progressTimeFirstMashFirstAmylaseUnits" Content="min" Grid.Row="2" Grid.Column="5"/>-->
+
+                        <!--<Label x:Name="progressTimeFirstMashSecondAmylaseCaption" Content="Elapsed Time:" Grid.Row="2" Grid.Column="6" HorizontalContentAlignment="Right"/>
+                        <Label x:Name="progressTimeFirstMashSecondAmylase" Content="{Binding ProgressOfFirstMashSecondAmylase, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="7"/>
+                        <Label x:Name="progressTimeFirstMashSecondAmylaseUnits" Content="min" Grid.Row="2" Grid.Column="8" HorizontalContentAlignment="Left"/>-->
+
+
+
+                        <!--<Label x:Name="progressOfSecondMashSecondAmylaseCaption" Content="Elapsed Time:" Grid.Row="3" Grid.Column="3" HorizontalContentAlignment="Right"  />
+                        <Label x:Name="progressOfSecondMashSecondAmylase" Content="{Binding ProgressTime, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="4" />
+                        <Label x:Name="progressSecondMasSecondAmylaseUnits"  Content="min" Grid.Row="3" Grid.Column="5"/>-->
+
+                        <!--<Label x:Name="progressOfSecondMashBoilingCaption" Content="Elapsed Time:" Grid.Row="3" Grid.Column="6" HorizontalContentAlignment="Right"/>
+                        <Label x:Name="progressOfSecondMashBoiling" Content="{Binding ProgressTime, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="7"/>
+                        <Label x:Name="progressOfSecondMashBoilingUnits" Content="min" Grid.Row="3" Grid.Column="8"/>-->
+                        <TextBox x:Name="outputFromHardware" Text="{Binding OutPutFromHardware, UpdateSourceTrigger=LostFocus}" TextWrapping="Wrap" AcceptsReturn="True"  Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="10" TextChanged="Scroll" Grid.RowSpan="1"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Settings">
+                    <Grid Background="#FFE5E5E5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="100*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10*"/>
+                            <RowDefinition Height="10*"/>
+                            <RowDefinition Height="10*"/>
+                            <RowDefinition Height="200*"/>
+                        </Grid.RowDefinitions>
+                        <ComboBox x:Name="comPort" ItemsSource="{Binding Source={StaticResource ComPorts}, UpdateSourceTrigger=PropertyChanged}" DataContext="ComPort" Grid.Column="1" />
+                        <Button x:Name="connect" Content="{Binding Path = ActualConnectionState, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="0"  Click="Connect_Click"/>
+                        <ComboBox x:Name="baudRate" ItemsSource="{Binding Source={StaticResource ComSpeed}}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <TextBox x:Name="commErrors" Text ="{Binding CommErrors}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+        </Grid>
+   </Grid>
+</Window>

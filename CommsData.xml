@@ -1,0 +1,4 @@
+<Comms>
+  <Ports>COM1</Ports>
+  <Baud>921600</Baud>
+</Comms>
